@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Open Thermal Camera -->
+    <usb-device vendor-id="1155" product-id="22336" />
+
+    <!-- Open Thermal Camera (DFU) Firmware Upgrade Mode -->
+    <usb-device vendor-id="0x0483" product-id="0xDF11" />
+
+</resources>

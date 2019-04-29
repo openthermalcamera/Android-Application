@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <string-array name="refresh_rate_entries">
+        <item>0.5 Hz</item>
+        <item>1 Hz</item>
+        <item>2 Hz</item>
+        <item>4 Hz</item>
+        <item>8 Hz</item>
+        <item>16 Hz</item>
+        <item>32 Hz</item>
+        <item>64 Hz</item>
+    </string-array>
+
+    <string-array name="refresh_rate_values">
+        <item>HZ_MIN</item>
+        <item>HZ_1</item>
+        <item>HZ_2</item>
+        <item>HZ_4</item>
+        <item>HZ_8</item>
+        <item>HZ_16</item>
+        <item>HZ_32</item>
+        <item>HZ_64</item>
+    </string-array>
+
+    <string-array name="resolution_entries">
+        <item>16-bit</item>
+        <item>17-bit</item>
+        <item>18-bit</item>
+        <item>19-bit</item>
+    </string-array>
+
+    <string-array name="resolution_values">
+        <item>BIT_16</item>
+        <item>BIT_17</item>
+        <item>BIT_18</item>
+        <item>BIT_19</item>
+    </string-array>
+
+    <string-array name="mode_entries">
+        <item>Interleaved</item>
+        <item>Chess pattern</item>
+    </string-array>
+
+    <string-array name="mode_values">
+        <item>INTERLEAVED</item>
+        <item>CHESS</item>
+    </string-array>
+
+    <string-array name="thermal_palette_entries">
+        <item>Rainbow Palette</item>
+        <item>White Hot Palette</item>
+        <item>Dark Hot Palette</item>
+    </string-array>
+
+    <string-array name="thermal_palette_values">
+        <item>RainbowPalette</item>
+        <item>WhiteHotPalette</item>
+        <item>DarkHotPalette</item>
+    </string-array>
+
+</resources>
