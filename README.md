@@ -1,3 +1,3 @@
-# android
+# Android application for Open Thermal Camera
 
-Android app for thermal camera project.
+Application for displaying, taking and viewing thermal photos.
