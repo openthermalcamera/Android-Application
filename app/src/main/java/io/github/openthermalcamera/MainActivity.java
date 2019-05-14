@@ -58,13 +58,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import io.github.openthermalcamera.Palette.ThermalPalette;
 
-import static android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
-import static android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-import static android.view.View.SYSTEM_UI_FLAG_IMMERSIVE;
-
-//CAMERA
-
-
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -97,6 +90,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //This activity should keep the screen on!
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         //request for permissions
         ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},1);
 
@@ -105,12 +101,8 @@ public class MainActivity extends AppCompatActivity {
         irPicture = new IRPicture(OTC.IR_WIDTH, OTC.IR_HEIGHT);
         irView.setIRPicture(irPicture);
 
-        //lock to immersive mode
-        findViewById(R.id.layoutActivityMain).setSystemUiVisibility(SYSTEM_UI_FLAG_IMMERSIVE | SYSTEM_UI_FLAG_FULLSCREEN | SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-
         //rotate layout listener
         layoutRotateOnOrientation = new LayoutRotateOnOrientation();
-
 
         //get min max avg temp labels
         textMinIrTemp = findViewById(R.id.txtTempMin);
@@ -391,11 +383,8 @@ public class MainActivity extends AppCompatActivity {
         public void onStateChanged(OTC.OTCState otcState, OTC.UsbState usbState) {
             Log.d("MainActivity", "State changed: otc = " + otcState.name() + ", usb = " + usbState.name());
             if(otcState == OTC.OTCState.READY){
-                //otc is ready, initialize with default settings
-
-                //update otc from default settings from settings UI
-                otc.sendSettings(otc.getSettingsFromSharedPreferences());
-
+                // OTC is ready
+                onResume();
             }
         }
     }
@@ -419,10 +408,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        //lock to immersive mode
-        findViewById(R.id.layoutActivityMain).setSystemUiVisibility(SYSTEM_UI_FLAG_IMMERSIVE | SYSTEM_UI_FLAG_FULLSCREEN | SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-
 
         //Layout rotation listener
         layoutRotateOnOrientation.enable();
