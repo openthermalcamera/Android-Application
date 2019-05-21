@@ -51,8 +51,6 @@
                 android:id="@+id/camera"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-
-
                 android:keepScreenOn="true">
 
             </com.otaliastudios.cameraview.CameraView>
@@ -62,6 +60,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="matrix"/>
+
+            <ImageView
+                android:id="@+id/imgInsertOtc"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="50dp"
+                android:src="@drawable/insert_otc_animation"/>
 
 
         </io.github.openthermalcamera.FixedAspectRatioFrameLayout>
@@ -101,16 +106,14 @@
                     android:layout_margin="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:text="30C" />
+                    android:layout_alignParentLeft="true" />
 
                 <TextView
                     android:id="@+id/txtTempMax"
                     android:layout_margin="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:text="50C" />
+                    android:layout_alignParentRight="true" />
 
                 <TextView
 
@@ -118,8 +121,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:layout_margin="10dp"
-                    android:text="40C" />
+                    android:layout_margin="10dp" />
 
             </RelativeLayout>
 

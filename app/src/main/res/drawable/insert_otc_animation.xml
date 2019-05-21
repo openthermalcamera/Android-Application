@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/selected"
+        android:oneshot="false" >
+    <item android:drawable="@drawable/ic_insert_otc_ani_frame_1" android:duration="2000" />
+    <item android:drawable="@drawable/ic_insert_otc_ani_frame_2" android:duration="1300" />
+</animation-list>

@@ -11,20 +11,6 @@ tools:context="io.github.openthermalcamera.SettingsActivity">
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         >
-
-
-        <ImageButton
-            android:id="@+id/arrow_back"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:background="@null"
-            android:src="@drawable/arrow_back" />
     </RelativeLayout>
 <FrameLayout
     android:id="@+id/settings_container"

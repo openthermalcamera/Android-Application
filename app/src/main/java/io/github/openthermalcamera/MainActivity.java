@@ -11,10 +11,15 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.hardware.SensorManager;
 import android.media.MediaScannerConnection;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
@@ -28,6 +33,7 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +58,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -65,6 +73,9 @@ public class MainActivity extends AppCompatActivity {
     IRView irView;
     IRPicture irPicture = null;
     CameraView camera;
+
+    ImageView imgInsertOtc = null;
+    AnimationDrawable insertOtcAni = null;
 
     TextView textMinIrTemp;
     TextView textMaxIrTemp;
@@ -111,6 +122,11 @@ public class MainActivity extends AppCompatActivity {
 
         //get all views to rotate
         getAllRotatableViews(viewsToRotate, (ViewGroup) findViewById(R.id.layoutActivityMain));
+
+        // insert otc animation
+        imgInsertOtc = findViewById(R.id.imgInsertOtc);
+        insertOtcAni = (AnimationDrawable) imgInsertOtc.getDrawable();
+        insertOtcAni.setVisible(false, true);
 
         //OTC
         otc = new OTC(this, new OTCStateListener());
@@ -382,11 +398,53 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onStateChanged(OTC.OTCState otcState, OTC.UsbState usbState) {
             Log.d("MainActivity", "State changed: otc = " + otcState.name() + ", usb = " + usbState.name());
+            //start animation if OTC is unplugged
+            if(usbState == OTC.UsbState.CONNECTED){
+                stopOtcInsertAnimation();
+            } else {
+                startOtcInsertAnimation();
+            }
+
             if(otcState == OTC.OTCState.READY){
                 // OTC is ready
+                stopOtcInsertAnimation();
                 onResume();
             }
         }
+    }
+
+    void startOtcInsertAnimation() {
+        //usb disconnected
+        // hide IR and RGB views
+        // display animation
+        // disable picture button
+
+        camera.setVisibility(View.GONE);
+        irView.setVisibility(View.GONE);
+
+        insertOtcAni.setVisible(true, true);
+        imgInsertOtc.setVisibility(View.VISIBLE);
+
+        // Start the animation (looped playback by default).
+        insertOtcAni.start();
+
+        //disable picture button
+        findViewById(R.id.btnTakePicture).setAlpha(0.2f);
+        findViewById(R.id.btnTakePicture).setEnabled(false);
+    }
+
+    void stopOtcInsertAnimation(){
+
+        insertOtcAni.setVisible(false, true);
+        imgInsertOtc.setVisibility(View.INVISIBLE);
+
+        //bring back IR and RGB views
+        //Will be brought back after OTC initializes and calls onResume
+
+        //ReEnable take picture button
+        findViewById(R.id.btnTakePicture).setAlpha(1.0f);
+        findViewById(R.id.btnTakePicture).setEnabled(true);
+
     }
 
 
@@ -395,6 +453,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         //start usb service (if not started)
         otc.startUsbService();
+
     }
 
     @Override
@@ -404,6 +463,8 @@ public class MainActivity extends AppCompatActivity {
         //stop usb service
         otc.stopUsbService();
     }
+
+
 
     @Override
     protected void onResume() {
@@ -458,15 +519,23 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "overlay_enabled: " + overlay_enabled);
         if(!overlay_enabled){
             camera.setVisibility(View.GONE);
+            irView.setVisibility(View.VISIBLE);
             irView.setImageAlpha(255);
         } else {
             //read overlay alpha value
             camera.setVisibility(View.VISIBLE);
+            irView.setVisibility(View.VISIBLE);
             irView.setImageAlpha(sharedPreferences.getInt("ir_alpha_value", 150));
         }
 
         //filter bitmap?
         irView.setImageFilter(filter_enabled);
+
+
+        // check USB state and if USB not connected, display "insert OTC" animation
+        if(otc.getUsbState() == OTC.UsbState.DISCONNECTED && otc.getOTCState() == OTC.OTCState.NOT_READY){
+            startOtcInsertAnimation();
+        }
 
 
     }
