@@ -2,6 +2,10 @@ package io.github.openthermalcamera;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.Application;
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -40,8 +44,13 @@ import android.widget.Toast;
 import com.otaliastudios.cameraview.Audio;
 import com.otaliastudios.cameraview.CameraListener;
 import com.otaliastudios.cameraview.CameraView;
+import com.otaliastudios.cameraview.Facing;
+import com.otaliastudios.cameraview.Flash;
 import com.otaliastudios.cameraview.Gesture;
 import com.otaliastudios.cameraview.GestureAction;
+import com.otaliastudios.cameraview.Grid;
+import com.otaliastudios.cameraview.Hdr;
+import com.otaliastudios.cameraview.Mode;
 import com.otaliastudios.cameraview.PictureResult;
 
 import org.json.JSONArray;
@@ -66,6 +75,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import io.github.openthermalcamera.Palette.ThermalPalette;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -87,6 +99,50 @@ public class MainActivity extends AppCompatActivity {
 
     LayoutRotateOnOrientation layoutRotateOnOrientation = null;
 
+    public class CameraViewExceptionHandler implements Thread.UncaughtExceptionHandler {
+
+        @Override
+        public void uncaughtException(Thread t, Throwable throwable) {
+            //If this exception comes from CameraView, ignore, disable camera and make a toast
+            if(throwable.getStackTrace()[0].getClassName().equals("android.hardware.Camera")){
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                SharedPreferences.Editor editor = preferences.edit();
+                try {
+                    editor.putBoolean("overlay_enabled", false);
+                    editor.putBoolean("cameraview_crashed", true);
+                    editor.commit();
+                } catch (Throwable everything){
+                    Log.w("ExceptionHandler", "putting boolean to preferences crashed... " + everything.getMessage());
+                }
+                Log.w("ExceptionHandler", "CameraView error caught and disabled RGB overlay: " + throwable.getMessage());
+
+                //try to rerun mainactivity
+                Intent mStartActivity = new Intent(MainActivity.this, MainActivity.class);
+                int mPendingIntentId = 123456;
+                PendingIntent mPendingIntent = PendingIntent.getActivity(MainActivity.this, mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+                AlarmManager mgr = (AlarmManager) MainActivity.this.getSystemService(Context.ALARM_SERVICE);
+                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 500, mPendingIntent);
+
+                System.exit(0);
+            } else {
+                //else propagate the error further
+
+                //disable this threads exception handler so we won't catch our own exception
+                Thread.setDefaultUncaughtExceptionHandler(null);
+
+                //this should end the application
+                RuntimeException exception;
+                if (throwable instanceof RuntimeException) {
+                    exception = (RuntimeException) throwable;
+                } else {
+                    exception = new RuntimeException(throwable);
+                }
+                throw exception;
+            }
+        }
+
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -100,6 +156,37 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Get shared preferences (Settings)
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+
+        //Toast if runtime exception happened
+        if(sharedPreferences.getBoolean("cameraview_crashed", false)){
+            Toast.makeText(this, "CameraView error caught, disabled RGB overlay", Toast.LENGTH_SHORT).show();
+            sharedPreferences.edit().remove("cameraview_crashed").apply();
+        }
+
+        //CameraView Runtime Exception handler
+        final CameraViewExceptionHandler cameraViewExceptionHandler = new CameraViewExceptionHandler();
+        runOnUiThread(() -> {
+            Thread.currentThread().setUncaughtExceptionHandler(cameraViewExceptionHandler);
+        });
+
+        //CAMERA
+        camera = findViewById(R.id.camera);
+        //first set cameraview enabled/disabled then adjust settings
+        boolean overlay_enabled = sharedPreferences.getBoolean("overlay_enabled", false);
+        setCameraViewEnabled(overlay_enabled);
+        camera.setAudio(Audio.OFF);
+        //camera.mapGesture(Gesture.PINCH, GestureAction.ZOOM); // Pinch to zoom!
+        camera.mapGesture(Gesture.TAP, GestureAction.FOCUS_WITH_MARKER); // Tap to focus!
+        camera.addCameraListener(new CameraListener() {
+            @Override
+            public void onPictureTaken(PictureResult pic) {
+                super.onPictureTaken(pic);
+                saveTakenPicture(takeIrPicture(), pic, layoutRotateOnOrientation.getCurrentOrientation());
+            }
+        });
 
         //This activity should keep the screen on!
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -156,26 +243,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        //CAMERA
-        camera = findViewById(R.id.camera);
-        camera.setLifecycleOwner(this);
-
-        camera.setAudio(Audio.OFF);
-
-        camera.addCameraListener(new CameraListener() {
-            @Override
-            public void onPictureTaken(PictureResult pic) {
-                super.onPictureTaken(pic);
-
-                saveTakenPicture(takeIrPicture(), pic, layoutRotateOnOrientation.getCurrentOrientation());
-            }
-        });
-
-        //camera.mapGesture(Gesture.PINCH, GestureAction.ZOOM); // Pinch to zoom!
-        camera.mapGesture(Gesture.TAP, GestureAction.FOCUS_WITH_MARKER); // Tap to focus!
-        //END CAMERA
-
-
         //take picture button
         findViewById(R.id.btnTakePicture).setOnClickListener((View v) -> {
 
@@ -191,7 +258,6 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 //Check if RGB+IR or IR only
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
                 if(sharedPreferences.getBoolean("overlay_enabled", false)){
                     //RGB+IR
                     camera.takePictureSnapshot();
@@ -214,6 +280,17 @@ public class MainActivity extends AppCompatActivity {
             startActivity(galleryIntent);
         });
 
+    }
+
+
+    void setCameraViewEnabled(boolean enabled){
+
+        if(enabled){
+            camera.setLifecycleOwner(this);
+            camera.setVisibility(View.VISIBLE);
+        } else {
+            camera.setVisibility(View.GONE);
+        }
     }
 
 
@@ -515,6 +592,8 @@ public class MainActivity extends AppCompatActivity {
         irPicture.setSeachAreaSize(searchAreaSize);
 
         //act on settings:
+        //enable / disable camera
+        setCameraViewEnabled(overlay_enabled);
         //if overlay not enabled, hide camera layout
         Log.d(TAG, "overlay_enabled: " + overlay_enabled);
         if(!overlay_enabled){

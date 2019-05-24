@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "72846778019",
+    "firebase_url": "https://open-thermal-camera.firebaseio.com",
+    "project_id": "open-thermal-camera",
+    "storage_bucket": "open-thermal-camera.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:72846778019:android:bc708fad5cd67bb0",
+        "android_client_info": {
+          "package_name": "io.github.openthermalcamera"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "72846778019-onqtts3ddgm5babv3q0m3k81m5294qhl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDStnWICekd5kCtZdDDMlNjOAAN0Ler30U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "72846778019-onqtts3ddgm5babv3q0m3k81m5294qhl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
