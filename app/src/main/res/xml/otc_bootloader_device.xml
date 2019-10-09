@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Open Thermal Camera (DFU) Firmware Upgrade Mode -->
+    <usb-device name="otc-bootloader" vendor-id="1155" product-id="57105" />
+
+</resources>

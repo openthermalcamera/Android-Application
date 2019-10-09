@@ -1,21 +1,58 @@
 package io.github.openthermalcamera;
 
+import android.content.Context;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbDeviceConnection;
+import android.hardware.usb.UsbManager;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
+import android.widget.EditText;
 
 import io.github.openthermalcamera.Palette.ThermalPalette;
 
+import androidx.annotation.NonNull;
+import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.SeekBarPreference;
 
+import com.crashlytics.android.Crashlytics;
+
+import java.util.HashMap;
+
 public class SettingsFragment extends PreferenceFragmentCompat {
+
+    OTC otcHandle;
+
+    private static final String TAG = "SettingsFragment";
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.settings_screen, rootKey);
+
+        otcHandle = new OTC(getContext(), null);
+
+        //crashlytics test button
+        findPreference("btn_crashlytics").setOnPreferenceClickListener(View -> {
+            Crashlytics.getInstance().crash();
+            return true;
+        });
+
+        findPreference("btn_bootloader").setOnPreferenceClickListener(View -> {
+            otcHandle.jumpToBootloader();
+
+            try {
+                Thread.sleep(2000);
+            } catch (Exception ex){
+
+            }
+
+
+            return true;
+        });
 
         //Emissivity
         SeekBarPreference emissivity = findPreference("emissivity");
@@ -29,6 +66,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         SeekBarPreference customRangeMin = (SeekBarPreference) findPreference("custom_range_min");
         SeekBarPreference customRangeMax = (SeekBarPreference) findPreference("custom_range_max");
+
+
+        //depencency on dynamic_range
+        findPreference("dynamic_range_enabled").setOnPreferenceChangeListener((preference, newValue) -> {
+            findPreference("dynamic_range_min_difference").setEnabled((boolean)newValue);
+            return true;
+        });
 
 
         //CUSTOM TEMPERATURE RANGE

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Open Thermal Camera -->
+    <usb-device name="otc" vendor-id="4617" product-id="8560" />
+
+</resources>

@@ -52,18 +52,18 @@ class OTC {
     private static double emissivity = 0.9;
 
     //Usb private variables
-    private UsbService usbService;
+    private static UsbService usbService;
     private static MyHandler mHandler = null;
 
     enum UsbState {
         CONNECTED, DISCONNECTED
     }
-    private UsbState usbState = UsbState.DISCONNECTED;
+    private static UsbState usbState = UsbState.DISCONNECTED;
 
     enum OTCState {
         READY, NO_PERMISSIONS, NOT_READY
     }
-    private OTCState otcState = OTCState.NOT_READY;
+    private static OTCState otcState = OTCState.NOT_READY;
 
 
     public OTCState getOTCState(){
@@ -244,6 +244,7 @@ class OTC {
         //stop autoframe sending
         setAutoFrameSending(false);
 
+
         ctx.unregisterReceiver(mUsbReceiver);
         ctx.unbindService(usbConnection);
     }
@@ -325,6 +326,12 @@ class OTC {
     }
 
 
+    public void jumpToBootloader(){
+        Protocol.CmdStruct cmd = new Protocol.CmdStruct();
+        cmd.commandCode = Protocol.CMD_JUMP_TO_BOOTLOADER;
+        cmd.dataLength = 0;
+        protocol.sendCommand(cmd);
+    }
 
     public void getFirmwareVersion(FirmwareVersionListener listener){
         fwListener.add(listener);

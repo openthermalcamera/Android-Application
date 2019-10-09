@@ -2,10 +2,6 @@ package io.github.openthermalcamera;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
-import android.app.Application;
-import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,14 +12,10 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.TransitionDrawable;
 import android.hardware.SensorManager;
 import android.media.MediaScannerConnection;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
@@ -41,16 +33,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.otaliastudios.cameraview.Audio;
 import com.otaliastudios.cameraview.CameraListener;
 import com.otaliastudios.cameraview.CameraView;
-import com.otaliastudios.cameraview.Facing;
-import com.otaliastudios.cameraview.Flash;
 import com.otaliastudios.cameraview.Gesture;
 import com.otaliastudios.cameraview.GestureAction;
-import com.otaliastudios.cameraview.Grid;
-import com.otaliastudios.cameraview.Hdr;
-import com.otaliastudios.cameraview.Mode;
 import com.otaliastudios.cameraview.PictureResult;
 
 import org.json.JSONArray;
@@ -67,15 +58,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import io.github.openthermalcamera.Palette.ThermalPalette;
-
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -99,49 +83,6 @@ public class MainActivity extends AppCompatActivity {
 
     LayoutRotateOnOrientation layoutRotateOnOrientation = null;
 
-    public class CameraViewExceptionHandler implements Thread.UncaughtExceptionHandler {
-
-        @Override
-        public void uncaughtException(Thread t, Throwable throwable) {
-            //If this exception comes from CameraView, ignore, disable camera and make a toast
-            if(throwable.getStackTrace()[0].getClassName().equals("android.hardware.Camera")){
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                SharedPreferences.Editor editor = preferences.edit();
-                try {
-                    editor.putBoolean("overlay_enabled", false);
-                    editor.putBoolean("cameraview_crashed", true);
-                    editor.commit();
-                } catch (Throwable everything){
-                    Log.w("ExceptionHandler", "putting boolean to preferences crashed... " + everything.getMessage());
-                }
-                Log.w("ExceptionHandler", "CameraView error caught and disabled RGB overlay: " + throwable.getMessage());
-
-                //try to rerun mainactivity
-                Intent mStartActivity = new Intent(MainActivity.this, MainActivity.class);
-                int mPendingIntentId = 123456;
-                PendingIntent mPendingIntent = PendingIntent.getActivity(MainActivity.this, mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
-                AlarmManager mgr = (AlarmManager) MainActivity.this.getSystemService(Context.ALARM_SERVICE);
-                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 500, mPendingIntent);
-
-                System.exit(0);
-            } else {
-                //else propagate the error further
-
-                //disable this threads exception handler so we won't catch our own exception
-                Thread.setDefaultUncaughtExceptionHandler(null);
-
-                //this should end the application
-                RuntimeException exception;
-                if (throwable instanceof RuntimeException) {
-                    exception = (RuntimeException) throwable;
-                } else {
-                    exception = new RuntimeException(throwable);
-                }
-                throw exception;
-            }
-        }
-
-    }
 
     @Override
     protected void onDestroy() {
@@ -149,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
         layoutRotateOnOrientation.disable();
         layoutRotateOnOrientation = null;
+
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -165,12 +107,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "CameraView error caught, disabled RGB overlay", Toast.LENGTH_SHORT).show();
             sharedPreferences.edit().remove("cameraview_crashed").apply();
         }
-
-        //CameraView Runtime Exception handler
-        final CameraViewExceptionHandler cameraViewExceptionHandler = new CameraViewExceptionHandler();
-        runOnUiThread(() -> {
-            Thread.currentThread().setUncaughtExceptionHandler(cameraViewExceptionHandler);
-        });
 
         //CAMERA
         camera = findViewById(R.id.camera);
@@ -237,6 +173,8 @@ public class MainActivity extends AppCompatActivity {
                     textMinIrTemp.setText(df.format(otc.getMinIrTemp()));
                     textMaxIrTemp.setText(df.format(otc.getMaxIrTemp()));
                     textAvgIrTemp.setText(df.format((otc.getMaxIrTemp() + otc.getMinIrTemp()) / 2.0 ));
+
+
                 }
             }
 
@@ -560,7 +498,14 @@ public class MainActivity extends AppCompatActivity {
         boolean overlay_enabled = sharedPreferences.getBoolean("overlay_enabled", false);
         boolean filter_enabled = sharedPreferences.getBoolean("filter_enabled", false);
 
-        int emissivityPercent = sharedPreferences.getInt("emissivity", 90);
+        int emissivityPercent = 90;
+        try {
+            emissivityPercent = sharedPreferences.getInt("emissivity", 90);
+        } catch(Exception ex){
+            try {
+                emissivityPercent = Integer.parseInt(sharedPreferences.getString("emissivity", "90"));
+            }catch (Exception ex1){}
+        }
         double emissivity = emissivityPercent / 100.0; //percent to absolute
         //set emissivity
         otc.setEmissivity(emissivity);
@@ -574,6 +519,11 @@ public class MainActivity extends AppCompatActivity {
         boolean dynamic_range_enabled = sharedPreferences.getBoolean("dynamic_range_enabled", false);
         Log.d(TAG, "Dynamic range enabled: " + dynamic_range_enabled);
         irView.getIRPicture().setDynamicRange(dynamic_range_enabled);
+
+        //set dynamic range min difference
+        float dynamic_range_min_difference = sharedPreferences.getInt("dynamic_range_min_difference", 0);
+        Log.d(TAG, "Dynamic range min difference: " + dynamic_range_min_difference);
+        irView.getIRPicture().setDynamicRangeMinDifference(dynamic_range_min_difference);
 
         //set custom range
         irView.getIRPicture().setCustomTemperatureRange(sharedPreferences.getBoolean("custom_range_enabled", false));
@@ -612,10 +562,14 @@ public class MainActivity extends AppCompatActivity {
 
 
         // check USB state and if USB not connected, display "insert OTC" animation
+        //debug
+        Log.d(TAG, "USB state: " + otc.getUsbState() + ", OTC state: " + otc.getOTCState());
         if(otc.getUsbState() == OTC.UsbState.DISCONNECTED && otc.getOTCState() == OTC.OTCState.NOT_READY){
             startOtcInsertAnimation();
         }
-
+        if(otc.getUsbState() == OTC.UsbState.CONNECTED && otc.getOTCState() == OTC.OTCState.READY) {
+            stopOtcInsertAnimation();
+        }
 
     }
 

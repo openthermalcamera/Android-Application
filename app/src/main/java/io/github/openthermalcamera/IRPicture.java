@@ -23,6 +23,7 @@ public class IRPicture {
     public void setSeachAreaSize(int size){searchAreaSize=size;}
 
     protected boolean dynamicRange;
+    protected float dynamicRangeMinDifference = 0;
 
     private Point maxTempPixel = new Point(0,0);
     private Point maxTempPixelInSearchArea = new Point(0,0);
@@ -38,6 +39,7 @@ public class IRPicture {
         minTemp = toCopy.minTemp;
         maxTemp = toCopy.maxTemp;
         dynamicRange = toCopy.dynamicRange;
+        dynamicRangeMinDifference = toCopy.dynamicRangeMinDifference;
         maxTempPixel = new Point(maxTempPixel);
 
     }
@@ -89,12 +91,20 @@ public class IRPicture {
             }
         }
 
+        // min difference setting
+        double tmpMinTemp = minTemp, tmpMaxTemp = maxTemp;
+        double avgTemp = (minTemp+maxTemp) / 2.0;
+        if(dynamicRangeMinDifference > 0 && dynamicRangeMinDifference > (maxTemp - minTemp) ){
+            tmpMinTemp = avgTemp - (dynamicRangeMinDifference / 2.0);
+            tmpMaxTemp = avgTemp + (dynamicRangeMinDifference / 2.0);
+        }
+
         //convert temperatures
         for(int y = 0; y < OTC.IR_HEIGHT; y++){
             for(int x = 0 ; x<OTC.IR_WIDTH; x++){
 
                 if(dynamicRange) {
-                    irBitmap.setPixel(x, y, thermalPalette.temperatureToColor(getTemperatureAt(x, y), minTemp, maxTemp));
+                    irBitmap.setPixel(x, y, thermalPalette.temperatureToColor(getTemperatureAt(x, y), tmpMinTemp, tmpMaxTemp));
                 } else if(customTemperatureRange) {
                     irBitmap.setPixel(x, y, thermalPalette.temperatureToColor(getTemperatureAt(x, y), customMinTemperature, customMaxTemperature));
                 } else {
@@ -127,6 +137,10 @@ public class IRPicture {
 
     public void setDynamicRange(boolean enabled){
         dynamicRange = enabled;
+    }
+
+    public void setDynamicRangeMinDifference(float minDifference){
+        dynamicRangeMinDifference = minDifference;
     }
 
     public void setCustomTemperatureRange(boolean enabled){

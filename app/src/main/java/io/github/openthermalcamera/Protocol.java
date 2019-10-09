@@ -41,9 +41,11 @@ class Protocol {
 	public static final int CMD_GET_CUR_MODE = 0x08;
 	public static final int CMD_SET_AUTO_FRAME_DATA_SENDING = 0x09;
     public static final int CMD_GET_FIRMWARE_VERSION = 0x0A;
+	public static final int CMD_JUMP_TO_BOOTLOADER = 0x0B;
 
 
-    public static class CmdStruct{
+
+	public static class CmdStruct{
 		int commandCode;
 		int dataLength;
 		ArrayList<Integer> data = new ArrayList<>();
@@ -65,6 +67,7 @@ class Protocol {
 	public static final int RSP_GET_CUR_MODE = 0x08;
 	public static final int RSP_SET_AUTO_FRAME_DATA_SENDING = 0x09;
     public static final int RSP_GET_FIRMWARE_VERSION = 0x0A;
+	public static final int RSP_JUMP_TO_BOOTLOADER = 0x0B;
 
 	//dataCode
 	public static final int CODE_OK = 0;

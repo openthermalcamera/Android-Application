@@ -24,6 +24,13 @@
             app:key="dynamic_range_enabled"
             app:disableDependentsState="true" />
 
+        <SeekBarPreference
+            app:title="Minimum min-max range difference"
+            app:key="dynamic_range_min_difference"
+            app:showSeekBarValue="true"
+            app:min="0"
+            android:max="50"/>
+
         <Preference
             app:key="thermal_palette_default_range_info"
             app:title="Default Minimum Range For Selected Palette"
@@ -39,6 +46,7 @@
             app:key="custom_range_min"
             app:min="-50"
             android:max="300"
+            app:showSeekBarValue="true"
             app:dependency="custom_range_enabled"/>
 
         <SeekBarPreference
@@ -46,6 +54,7 @@
             app:key="custom_range_max"
             app:min="-50"
             android:max="300"
+            app:showSeekBarValue="true"
             app:dependency="custom_range_enabled"/>
 
 
@@ -64,6 +73,7 @@
         app:min="1"
         android:max="255"
         android:defaultValue="150"
+        app:showSeekBarValue="true"
         app:dependency="overlay_enabled"/>
 
     </PreferenceCategory>
@@ -73,6 +83,7 @@
             app:title="Emissivity"
             app:summary="Set emissivity level of observed material in percent"
             app:key="emissivity"
+            app:showSeekBarValue="true"
             app:min="0"
             android:max="100"
             app:defaultValue="90"/>
@@ -124,8 +135,21 @@
             app:min="3"
             android:max="7"
             android:defaultValue="4"
+            app:showSeekBarValue="true"
             app:dependency="search_area_enabled"/>
 
     </PreferenceCategory>
+
+    <Preference
+        android:title="Open Thermal Camera Bootloader"
+        android:key="btn_bootloader"
+        android:summary="Puts Open Thermal Camera to bootloader"
+        />
+
+    <Preference
+        android:title="Crashlytics test"
+        android:key="btn_crashlytics"
+        android:summary="Crashes the app to test Firebase Crashlytics"
+        />
 
 </androidx.preference.PreferenceScreen>

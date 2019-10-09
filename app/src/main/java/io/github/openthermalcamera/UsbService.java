@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.XmlResourceParser;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
@@ -18,19 +19,21 @@ import com.felhr.usbserial.CDCSerialDevice;
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
 
+import org.xmlpull.v1.XmlPullParser;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class UsbService extends Service {
 
-    public static final int OTC_PID = 22336;
-    public static final int OTC_VID = 1155;
+    public static int OTC_PID = 0x2170;
+    public static int OTC_VID = 0x1209;
 
 
     public static final String ACTION_USB_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED";
     public static final String ACTION_USB_DETACHED = "android.hardware.usb.action.USB_DEVICE_DETACHED";
 
-    private static final String PACKAGE_NAME = "com.example.erikk.usb8";
+    private static final String PACKAGE_NAME = BuildConfig.APPLICATION_ID;
 
     public static final String ACTION_USB_READY = PACKAGE_NAME + ".USB_READY";
     public static final String ACTION_USB_NOT_SUPPORTED = PACKAGE_NAME + ".USB_NOT_SUPPORTED";
@@ -134,6 +137,11 @@ public class UsbService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        try{
+            unregisterReceiver(usbReceiver);
+        } catch (IllegalArgumentException e){
+            //that's cool
+        }
         UsbService.SERVICE_CONNECTED = false;
     }
 
@@ -158,6 +166,25 @@ public class UsbService extends Service {
                 device = entry.getValue();
                 int deviceVID = device.getVendorId();
                 int devicePID = device.getProductId();
+
+                //    <usb-device name="otc" vendor-id="4617" product-id="8560" />
+                try {
+                    XmlResourceParser parser = context.getResources().getXml(R.xml.otc_device);
+                    int event = parser.getEventType();
+                    while (event != XmlPullParser.END_DOCUMENT) {
+                        if ("usb-device".equals(parser.getName())) {
+                            if ("otc".equals(parser.getAttributeValue(null, "name"))) {
+                                OTC_VID = Integer.parseInt(parser.getAttributeValue(null, "vendor-id"));
+                                OTC_PID = Integer.parseInt(parser.getAttributeValue(null, "product-id"));
+                                Log.d("UsbService", "Succesfully extracted VID/PID from otc_device.xml: VID: " + OTC_VID + " PID: " + OTC_PID);
+                                break;
+                            }
+                        }
+                        event = parser.next();
+                    }
+                } catch (Exception ex){
+                    Log.d("UsbService", "Cannot get VID/PID pair from otc_device_device.xml");
+                }
 
                 if(devicePID == OTC_PID && deviceVID == OTC_VID){
 

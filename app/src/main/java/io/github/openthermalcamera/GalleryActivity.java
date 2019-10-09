@@ -6,16 +6,20 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -24,6 +28,8 @@ import java.util.Locale;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ShareCompat;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,19 +48,28 @@ public class GalleryActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     File folderToScan;
     FileFilter imageFilter;
-    File[] imageFiles;
+    File[] imageFiles = new File[0];
     TextView txtDatetime;
     int currentSnapPosition = 0;
+    RelativeLayout noPicturesFound;
+    FrameLayout frameLayout;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
+
+        //get framelayout
+        frameLayout = findViewById(R.id.frameLayout);
+
+        //get layoutNoPicturesFound
+        noPicturesFound = findViewById(R.id.layoutNoPicturesFound);
 
         txtDatetime = findViewById(R.id.txtDatetime);
         imageFilter = new ImageFileFilter();
         folderToScan = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "/OpenThermalCamera");
 
 
+        //get recycler view
         //create N item horizontal scroll list
         imageAdapter = new ImageAdapter();
         recyclerView = findViewById(R.id.recyclerView);
@@ -84,11 +99,22 @@ public class GalleryActivity extends AppCompatActivity {
 
         //share button
         findViewById(R.id.btnShare).setOnClickListener((View v) -> {
-            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-            sharingIntent.setType("image/*");
-            sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(imageFiles[currentSnapPosition]));
-            startActivity(Intent.createChooser(sharingIntent, "Share image:"));
+
+            final Uri theUri = FileProvider.getUriForFile(this,
+                    BuildConfig.APPLICATION_ID + ".provider",
+                    imageFiles[currentSnapPosition]);
+
+            Intent shareIntent = ShareCompat.IntentBuilder.from(this)
+                    .setType("image/png")
+                    .setStream(theUri)
+                    .getIntent();
+            shareIntent.setData(theUri);
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(shareIntent, "Share image:"));
+
         });
+
+        checkIfAnyImagesAvailable();
 
     }
 
@@ -176,7 +202,42 @@ public class GalleryActivity extends AppCompatActivity {
             }
         }
 
+        checkIfAnyImagesAvailable();
+
         setDatetime(0);
+
+    }
+
+    private void checkIfAnyImagesAvailable(){
+        //check if dataset is empty
+        if(imageFiles.length == 0){
+            noPicturesFound.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+            frameLayout.bringChildToFront(noPicturesFound);
+
+            //disable all buttons
+
+            findViewById(R.id.btnInspect).setAlpha(0.2f);
+            findViewById(R.id.btnInspect).setEnabled(false);
+            findViewById(R.id.btnShare).setAlpha(0.2f);
+            findViewById(R.id.btnShare).setEnabled(false);
+            findViewById(R.id.btnDelete).setAlpha(0.2f);
+            findViewById(R.id.btnDelete).setEnabled(false);
+
+        } else {
+            noPicturesFound.setVisibility(View.INVISIBLE);
+            recyclerView.setVisibility(View.VISIBLE);
+            frameLayout.bringChildToFront(recyclerView);
+
+            //enable all buttons
+            findViewById(R.id.btnInspect).setAlpha(1.0f);
+            findViewById(R.id.btnInspect).setEnabled(true);
+            findViewById(R.id.btnShare).setAlpha(1.0f);
+            findViewById(R.id.btnShare).setEnabled(true);
+            findViewById(R.id.btnDelete).setAlpha(1.0f);
+            findViewById(R.id.btnDelete).setEnabled(true);
+
+        }
 
     }
 

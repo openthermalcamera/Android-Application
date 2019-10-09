@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-
+apply plugin: 'io.fabric'
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -26,11 +26,15 @@ android {
 dependencies {
     implementation 'com.github.felHR85:UsbSerial:5.0.0'
     implementation 'com.otaliastudios:cameraview:2.0.0-beta04'
-    implementation 'androidx.appcompat:appcompat:1.1.0-alpha05'
-    implementation 'androidx.preference:preference:1.1.0-alpha05'
+    implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
+    implementation 'androidx.preference:preference:1.1.0-beta01'
 
-    //crashlytics
-    implementation 'com.google.firebase:firebase-core:16.0.9'
+    //Firebase core
+    implementation 'com.google.firebase:firebase-core:17.0.0'
+
+    //Crashlytics
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
+
 }
 
 apply plugin: 'com.google.gms.google-services'

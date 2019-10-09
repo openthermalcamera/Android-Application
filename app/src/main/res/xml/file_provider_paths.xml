@@ -1,0 +1,3 @@
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <external-path name="taken_pictures" path="Pictures/OpenThermalCamera"/>
+</paths>

@@ -18,6 +18,9 @@ public class SettingsActivity extends AppCompatActivity {
                 .replace(R.id.settings_container, new SettingsFragment())
                 .commit();
 
+        //add on back button press
+        findViewById(R.id.btnBack).setOnClickListener(View -> finish());
+
     }
 
 
