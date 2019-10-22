@@ -9,8 +9,10 @@
         <item>4 Hz</item>
         <item>8 Hz</item>
         <item>16 Hz</item>
+        <!--
         <item>32 Hz</item>
         <item>64 Hz</item>
+        -->
     </string-array>
 
     <string-array name="refresh_rate_values">
@@ -20,8 +22,10 @@
         <item>HZ_4</item>
         <item>HZ_8</item>
         <item>HZ_16</item>
+        <!--
         <item>HZ_32</item>
         <item>HZ_64</item>
+        -->
     </string-array>
 
     <string-array name="resolution_entries">

@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "72846778019",
-    "firebase_url": "https://open-thermal-camera.firebaseio.com",
-    "project_id": "open-thermal-camera",
-    "storage_bucket": "open-thermal-camera.appspot.com"
+    "project_number": "222922332991",
+    "firebase_url": "https://open-thermal-camera-d0df3.firebaseio.com",
+    "project_id": "open-thermal-camera-d0df3",
+    "storage_bucket": "open-thermal-camera-d0df3.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:72846778019:android:bc708fad5cd67bb0",
+        "mobilesdk_app_id": "1:222922332991:android:6d76a51b7f1d7ce9e0918a",
         "android_client_info": {
-          "package_name": "io.github.openthermalcamera"
+          "package_name": "com.themarpe.openthermalcamera"
         }
       },
       "oauth_client": [
         {
-          "client_id": "72846778019-onqtts3ddgm5babv3q0m3k81m5294qhl.apps.googleusercontent.com",
+          "client_id": "222922332991-qh4qn7m730ee4pcrnm36v78j9t53gn7j.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDStnWICekd5kCtZdDDMlNjOAAN0Ler30U"
+          "current_key": "AIzaSyBqaOZv6LXJh8ivwa0WMnDg3SRB7vq1vLM"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "72846778019-onqtts3ddgm5babv3q0m3k81m5294qhl.apps.googleusercontent.com",
+              "client_id": "222922332991-qh4qn7m730ee4pcrnm36v78j9t53gn7j.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

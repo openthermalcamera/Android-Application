@@ -22,14 +22,16 @@
             app:title="Dynamic Temperature Range"
             app:summary="Automatically changes range based on minimum and maximum temperature"
             app:key="dynamic_range_enabled"
-            app:disableDependentsState="true" />
+            app:disableDependentsState="true"
+            android:defaultValue="true"/>
 
         <SeekBarPreference
             app:title="Minimum min-max range difference"
             app:key="dynamic_range_min_difference"
             app:showSeekBarValue="true"
             app:min="0"
-            android:max="50"/>
+            android:max="50"
+            android:defaultValue="5"/>
 
         <Preference
             app:key="thermal_palette_default_range_info"
@@ -59,6 +61,32 @@
 
 
     </PreferenceCategory>
+
+
+    <PreferenceCategory android:title="IR marker">
+
+        <SwitchPreferenceCompat
+            app:key="max_temperature_marker_enabled"
+            app:title="Maximum Temperature Marker"
+            app:summary="Shows a marker at a position of maximum temperature on thermal image" />
+
+        <SwitchPreferenceCompat
+            app:key="search_area_enabled"
+            app:title="Search Area For Marker"
+            app:dependency="max_temperature_marker_enabled"
+            app:summary="Have a search area in the middle of the screen for the marker" />
+
+        <SeekBarPreference
+            app:title="Search Area Size"
+            app:key="search_area_size"
+            app:min="3"
+            android:max="7"
+            android:defaultValue="4"
+            app:showSeekBarValue="true"
+            app:dependency="search_area_enabled"/>
+
+    </PreferenceCategory>
+
 
     <PreferenceCategory android:title="Camera settings">
 
@@ -92,9 +120,10 @@
             app:title="Refresh Rate"
             android:summary="%s"
             app:key="refresh_rate"
-            app:defaultValue="HZ_2"
+            app:defaultValue="HZ_4"
             app:entries="@array/refresh_rate_entries"
             app:entryValues="@array/refresh_rate_values"/>
+
 
         <ListPreference
             app:title="Resolution"
@@ -103,7 +132,6 @@
             app:defaultValue="BIT_18"
             app:entries="@array/resolution_entries"
             app:entryValues="@array/resolution_values"/>
-
 
         <ListPreference
             app:title="Sampling Mode"
@@ -116,30 +144,7 @@
     </PreferenceCategory>
 
 
-    <PreferenceCategory android:title="IR marker">
-
-        <SwitchPreferenceCompat
-            app:key="max_temperature_marker_enabled"
-            app:title="Maximum Temperature Marker"
-            app:summary="Shows a marker at a position of maximum temperature on thermal image" />
-
-        <SwitchPreferenceCompat
-            app:key="search_area_enabled"
-            app:title="Search Area For Marker"
-            app:dependency="max_temperature_marker_enabled"
-            app:summary="Have a search area in the middle of the screen for the marker" />
-
-        <SeekBarPreference
-            app:title="Search Area Size"
-            app:key="search_area_size"
-            app:min="3"
-            android:max="7"
-            android:defaultValue="4"
-            app:showSeekBarValue="true"
-            app:dependency="search_area_enabled"/>
-
-    </PreferenceCategory>
-
+    <!--
     <Preference
         android:title="Open Thermal Camera Bootloader"
         android:key="btn_bootloader"
@@ -151,5 +156,7 @@
         android:key="btn_crashlytics"
         android:summary="Crashes the app to test Firebase Crashlytics"
         />
+
+    -->
 
 </androidx.preference.PreferenceScreen>

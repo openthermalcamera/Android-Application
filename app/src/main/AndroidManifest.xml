@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="io.github.openthermalcamera">
+    package="com.themarpe.openthermalcamera">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-feature android:name="android.hardware.usb.host" android:required="false" />
@@ -16,7 +16,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name="io.github.openthermalcamera.MainActivity"
+        <activity android:name=".MainActivity"
             android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:clearTaskOnLaunch="true"
@@ -34,16 +34,16 @@
                 android:resource="@xml/otc_device" />
         </activity>
 
-        <activity android:name="io.github.openthermalcamera.SettingsActivity">
+        <activity android:name=".SettingsActivity">
 
         </activity>
 
-        <activity android:name="io.github.openthermalcamera.GalleryActivity">
+        <activity android:name=".GalleryActivity">
 
         </activity>
 
         <service
-            android:name="io.github.openthermalcamera.UsbService"
+            android:name=".UsbService"
             android:enabled="true">
 
         </service>
